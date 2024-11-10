@@ -1,4 +1,4 @@
-import json
+import requests
 import os
 from dotenv import load_dotenv
 
@@ -8,10 +8,10 @@ load_dotenv()
 API_NINJAS_KEY = os.getenv("API_NINJAS_KEY")
 
 
-def load_data(file_path: str) -> dict:
-    """ Loads a JSON file """
-    with open(file_path, "r") as handle:
-        return json.load(handle)
+# def load_data(file_path: str) -> dict:
+#     """ Loads a JSON file """
+#     with open(file_path, "r") as handle:
+#         return json.load(handle)
 
 
 def load_html_template(file_path: str) -> str:
@@ -20,9 +20,21 @@ def load_html_template(file_path: str) -> str:
         return handle.read()
 
 
-def get_animals_data(skin_type: str) -> dict[str, dict[str, str]]:
+def fetch_data(name: str) -> dict:
+    """ Fetches data from the API """
+    url = f"https://api.api-ninjas.com/v1/animals?name={name}"
+    headers = {
+        "X-Api-Key": API_NINJAS_KEY
+    }
+    response = requests.get(url, headers=headers, timeout=10)
+    if response.status_code == requests.codes.ok:
+        return response.json()
+    response.raise_for_status()
+
+
+def get_animals_data(name: str, skin_type: str) -> dict[str, dict[str, str]]:
     """ Returns a dictionary with the relevant data for each animal """
-    full_animals_data = load_data("animals_data.json")
+    full_animals_data = fetch_data(name)
 
     animals_data = {}
     for animal in full_animals_data:
@@ -62,9 +74,9 @@ def build_animal_info_html(animal_name: str, animal_data: dict[str, str]) -> str
     return html_code
 
 
-def get_possible_skin_types() -> list[str]:
+def get_possible_skin_types(name: str) -> list[str]:
     """ Returns the possible skin types of the animals """
-    full_animals_data = load_data("animals_data.json")
+    full_animals_data = fetch_data(name)
     skin_types = set()
     for animal in full_animals_data:
         if "characteristics" in animal and "skin_type" in animal["characteristics"]:
@@ -72,9 +84,9 @@ def get_possible_skin_types() -> list[str]:
     return list(skin_types)
 
 
-def get_user_input() -> str:
+def get_user_input_skin(name: str) -> str:
     """ Asks the user for the skin type of the animals """
-    skin_types = get_possible_skin_types()
+    skin_types = get_possible_skin_types(name)
     print("Possible skin types:")
     print("All")
     for skin_type in skin_types:
@@ -92,8 +104,8 @@ def get_user_input() -> str:
 
 def main():
     new_html = load_html_template("animals_template.html")
-    skin_type = get_user_input()
-    animals_data = get_animals_data(skin_type)
+    skin_type = get_user_input_skin("fox")
+    animals_data = get_animals_data("fox", skin_type)
     html_animals_data = ""
     for animal_name, animal_data in animals_data.items():
         html_animals_data += build_animal_info_html(animal_name, animal_data)
