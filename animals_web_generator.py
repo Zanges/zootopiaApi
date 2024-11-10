@@ -114,12 +114,19 @@ def get_user_input_skin(name: str) -> str:
             print("Invalid input. Please try again.")
 
 
+def build_query_error_html(query_name: str) -> str:
+    """ Returns the HTML code for the error message """
+    return f'<p class="error">No animals found<br>with the name<br>"{query_name}".</p>'
+
+
 def main():
     new_html = load_html_template("animals_template.html")
     query_name = get_user_input_animal()
     skin_type = get_user_input_skin(query_name)
     animals_data = get_animals_data(query_name, skin_type)
     html_animals_data = ""
+    if not animals_data:
+        html_animals_data = build_query_error_html(query_name)
     for animal_name, animal_data in animals_data.items():
         html_animals_data += build_animal_info_html(animal_name, animal_data)
     new_html = new_html.replace("__REPLACE_ANIMALS_INFO__", html_animals_data)
