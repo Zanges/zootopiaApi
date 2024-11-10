@@ -27,18 +27,18 @@ def get_animals_data(skin_type: str) -> dict[str, dict[str, str]]:
         if skin_type != animal_skin_type and skin_type != "All":
             continue
 
-        animal_data = {}
-        animal_data["taxonomy"] = " >> ".join(animal["taxonomy"].values())
-        if "characteristics" in animal:
-            if "diet" in animal["characteristics"]:
-                animal_data["Diet"] = animal["characteristics"]["diet"]
-            if "type" in animal["characteristics"]:
-                animal_data["Type"] = animal["characteristics"]["type"]
-            if "lifespan" in animal["characteristics"]:
-                animal_data["Lifespan"] = animal["characteristics"]["lifespan"]
-        if "locations" in animal:
-            animal_data["Location"] = " and ".join(animal["locations"])
-        animals_data[animal["name"]] = animal_data
+        animals_data[animal["name"]] = {
+            "taxonomy": " >> ".join(animal["taxonomy"].values()),
+            "Diet": animal.get("characteristics", {}).get("diet", None),
+            "Type": animal.get("characteristics", {}).get("type", None),
+            "Lifespan": animal.get("characteristics", {}).get("lifespan", None),
+            "Location": " and ".join(animal.get("locations", None))
+        }
+
+        for key, value in animals_data[animal["name"]].items():
+            if value is None:
+                animals_data[animal["name"]].pop(key) # remove the key if the value is None
+
     return animals_data
 
 
@@ -83,15 +83,17 @@ def get_user_input() -> str:
             print("Invalid input. Please try again.")
 
 
-if __name__ == "__main__":
+def main():
     new_html = load_html_template("animals_template.html")
     skin_type = get_user_input()
     animals_data = get_animals_data(skin_type)
-
     html_animals_data = ""
     for animal_name, animal_data in animals_data.items():
         html_animals_data += build_animal_info_html(animal_name, animal_data)
-
     new_html = new_html.replace("__REPLACE_ANIMALS_INFO__", html_animals_data)
     with open("animals.html", "w") as handle:
         handle.write(new_html)
+
+
+if __name__ == "__main__":
+    main()
