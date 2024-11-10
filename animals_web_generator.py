@@ -54,9 +54,12 @@ def get_animals_data(name: str, skin_type: str) -> dict[str, dict[str, str]]:
             "Location": " and ".join(animal.get("locations", None))
         }
 
+        to_remove = [] # remove the key if the value is None
         for key, value in animals_data[animal["name"]].items():
             if value is None:
-                animals_data[animal["name"]].pop(key) # remove the key if the value is None
+                to_remove.append(key)
+        for key in to_remove:
+            del animals_data[animal["name"]][key]
 
     return animals_data
 
