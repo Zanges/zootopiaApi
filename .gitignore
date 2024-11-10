@@ -3,3 +3,4 @@
 .vscode/
 .codio
 .settings
+.env
