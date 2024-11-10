@@ -87,6 +87,15 @@ def get_possible_skin_types(name: str) -> list[str]:
     return list(skin_types)
 
 
+def get_user_input_animal() -> str:
+    """ Asks the user for the name of the animal """
+    while True:
+        user_input = input("Enter the name of the animal: ")
+        if user_input.isalpha():
+            return user_input
+        print("Invalid input. Please try again.")
+
+
 def get_user_input_skin(name: str) -> str:
     """ Asks the user for the skin type of the animals """
     skin_types = get_possible_skin_types(name)
@@ -107,14 +116,17 @@ def get_user_input_skin(name: str) -> str:
 
 def main():
     new_html = load_html_template("animals_template.html")
-    skin_type = get_user_input_skin("fox")
-    animals_data = get_animals_data("fox", skin_type)
+    query_name = get_user_input_animal()
+    skin_type = get_user_input_skin(query_name)
+    animals_data = get_animals_data(query_name, skin_type)
     html_animals_data = ""
     for animal_name, animal_data in animals_data.items():
         html_animals_data += build_animal_info_html(animal_name, animal_data)
     new_html = new_html.replace("__REPLACE_ANIMALS_INFO__", html_animals_data)
     with open("animals.html", "w") as handle:
         handle.write(new_html)
+    print("The HTML file has been generated.")
+    print(">>> animals.html")
 
 
 if __name__ == "__main__":
