@@ -7,6 +7,9 @@ load_dotenv()
 
 API_NINJAS_KEY = os.getenv("API_NINJAS_KEY")
 
+TEMPLATE_PATH = "animals_template.html"
+OUTPUT_PATH = "animals.html"
+
 
 # def load_data(file_path: str) -> dict:
 #     """ Loads a JSON file """
@@ -120,7 +123,7 @@ def build_query_error_html(query_name: str) -> str:
 
 
 def main():
-    new_html = load_html_template("animals_template.html")
+    new_html = load_html_template(TEMPLATE_PATH)
     query_name = get_user_input_animal()
     skin_type = get_user_input_skin(query_name)
     animals_data = get_animals_data(query_name, skin_type)
@@ -130,10 +133,10 @@ def main():
     for animal_name, animal_data in animals_data.items():
         html_animals_data += build_animal_info_html(animal_name, animal_data)
     new_html = new_html.replace("__REPLACE_ANIMALS_INFO__", html_animals_data)
-    with open("animals.html", "w") as handle:
+    with open(OUTPUT_PATH, "w") as handle:
         handle.write(new_html)
     print("The HTML file has been generated.")
-    print(">>> animals.html")
+    print(f">>> {OUTPUT_PATH}")
 
 
 if __name__ == "__main__":
